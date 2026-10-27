@@ -1,4 +1,5 @@
 import { Layout } from "./components/Layout/Layout";
+import { RunList } from "./components/RunList/RunList";
 import { useRuns } from "./hooks/useRuns";
 
 function App() {
@@ -13,7 +14,7 @@ function App() {
           <button onClick={retry}>Retry</button>
         </div>
       )}
-      {state.status === "success" && <p>Runs loaded: {state.runs.length}</p>}
+      {state.status === "success" && <RunList runs={state.runs} />}
     </Layout>
   );
 }
