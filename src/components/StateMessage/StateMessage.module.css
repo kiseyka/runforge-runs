@@ -1,0 +1,20 @@
+.message {
+  padding: var(--space-7) var(--space-5);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
+.title {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.description {
+  margin-top: var(--space-1);
+  color: var(--color-text-muted);
+}
+
+.action {
+  margin-top: var(--space-4);
+}

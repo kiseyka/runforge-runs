@@ -1,0 +1,51 @@
+.list {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.line {
+  display: block;
+  height: 12px;
+  border-radius: 4px;
+  background: var(--color-border);
+  animation: shimmer 1.2s ease-in-out infinite;
+}
+
+.title {
+  width: 40%;
+  height: 16px;
+}
+
+.meta {
+  width: 60%;
+}
+
+.badge {
+  width: 90px;
+  height: 20px;
+  border-radius: 999px;
+}
+
+@keyframes shimmer {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .line {
+    animation: none;
+  }
+}

@@ -11,3 +11,5 @@ export type Run = {
   logs: string[];
   result?: string;
 };
+
+export type RunStatusFilter = RunStatus | "all";
