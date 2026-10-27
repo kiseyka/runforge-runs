@@ -7,9 +7,12 @@ import { SearchInput } from "../../components/SearchInput/SearchInput";
 import { StateMessage } from "../../components/StateMessage/StateMessage";
 import { StatusFilter } from "../../components/StatusFilter/StatusFilter";
 import { useRuns } from "../../hooks/useRuns";
-import type { RunStatusFilter } from "../../types/run";
 import { filterRuns } from "../../utils/filterRuns";
 import styles from "./RunsPage.module.css";
+import { SortSelect } from "../../components/SortSelect/SortSelect";
+import { DEFAULT_SORT, isRunSort } from "../../constants/runSort";
+import type { RunSort, RunStatusFilter } from "../../types/run";
+import { sortRuns } from "../../utils/sortRuns";
 
 export function RunsPage() {
   const { state, retry } = useRuns();
@@ -20,6 +23,8 @@ export function RunsPage() {
     ? statusParam
     : "all";
   const query = searchParams.get("q") ?? "";
+  const sortParam = searchParams.get("sort");
+  const sort: RunSort = isRunSort(sortParam) ? sortParam : DEFAULT_SORT;
 
   function handleStatusChange(status: RunStatusFilter) {
     setSearchParams(
@@ -37,6 +42,16 @@ export function RunsPage() {
       (params) => {
         if (value === "") params.delete("q");
         else params.set("q", value);
+        return params;
+      },
+      { replace: true },
+    );
+  }
+  function handleSortChange(value: RunSort) {
+    setSearchParams(
+      (params) => {
+        if (value === DEFAULT_SORT) params.delete("sort");
+        else params.set("sort", value);
         return params;
       },
       { replace: true },
@@ -79,7 +94,10 @@ export function RunsPage() {
       );
     }
 
-    const visibleRuns = filterRuns(state.runs, statusFilter, query);
+    const visibleRuns = sortRuns(
+      filterRuns(state.runs, statusFilter, query),
+      sort,
+    );
 
     if (visibleRuns.length === 0) {
       return (
@@ -97,9 +115,12 @@ export function RunsPage() {
 
     return (
       <>
-        <p className={styles.count}>
-          Showing {visibleRuns.length} of {state.runs.length} runs
-        </p>
+        <div className={styles.listHeader}>
+          <p className={styles.count}>
+            Showing {visibleRuns.length} of {state.runs.length} runs
+          </p>
+          <SortSelect value={sort} onChange={handleSortChange} />
+        </div>
         <RunList runs={visibleRuns} />
       </>
     );

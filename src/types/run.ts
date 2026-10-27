@@ -13,3 +13,4 @@ export type Run = {
 };
 
 export type RunStatusFilter = RunStatus | "all";
+export type RunSort = "newest" | "oldest" | "longest" | "shortest";
