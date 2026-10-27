@@ -21,13 +21,12 @@ export async function fetchRuns(): Promise<Run[]> {
   return mockRuns;
 }
 
-export async function fetchRunById(id: string): Promise<Run> {
+export async function fetchRunById(id: string): Promise<Run | null> {
   await delay(DELAY_MS);
 
-  const run = mockRuns.find((r) => r.id === id);
-  if (!run) {
-    throw new Error("Run not found");
+  if (shouldFail()) {
+    throw new Error("Failed to load run");
   }
 
-  return run;
+  return mockRuns.find((run) => run.id === id) ?? null;
 }

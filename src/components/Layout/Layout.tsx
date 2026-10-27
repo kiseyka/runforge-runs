@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import styles from "./Layout.module.css";
+import { Link } from "react-router-dom";
 
 type LayoutProps = {
   children: ReactNode;
@@ -10,10 +11,10 @@ export function Layout({ children }: LayoutProps) {
     <div className={styles.layout}>
       <header className={styles.header}>
         <div className={styles.headerInner}>
-          <span className={styles.logo}>
+          <Link to="/" className={styles.logo}>
             <span className={styles.logoMark} aria-hidden="true" />
             runforge
-          </span>
+          </Link>
           <span className={styles.project}>
             Project / <strong>web-platform</strong>
           </span>
