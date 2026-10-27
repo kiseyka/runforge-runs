@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { isRunStatus } from "../../constants/runStatus";
 import { Button } from "../../components/Button/Button";
 import { RunList } from "../../components/RunList/RunList";
 import { RunsSkeleton } from "../../components/RunsSkeleton/RunsSkeleton";
@@ -6,18 +7,66 @@ import { SearchInput } from "../../components/SearchInput/SearchInput";
 import { StateMessage } from "../../components/StateMessage/StateMessage";
 import { StatusFilter } from "../../components/StatusFilter/StatusFilter";
 import { useRuns } from "../../hooks/useRuns";
-import type { RunStatusFilter } from "../../types/run";
 import { filterRuns } from "../../utils/filterRuns";
 import styles from "./RunsPage.module.css";
+import { SortSelect } from "../../components/SortSelect/SortSelect";
+import { DEFAULT_SORT, isRunSort } from "../../constants/runSort";
+import type { RunSort, RunStatusFilter } from "../../types/run";
+import { sortRuns } from "../../utils/sortRuns";
 
 export function RunsPage() {
   const { state, retry } = useRuns();
-  const [statusFilter, setStatusFilter] = useState<RunStatusFilter>("all");
-  const [query, setQuery] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const statusParam = searchParams.get("status");
+  const statusFilter: RunStatusFilter = isRunStatus(statusParam)
+    ? statusParam
+    : "all";
+  const query = searchParams.get("q") ?? "";
+  const sortParam = searchParams.get("sort");
+  const sort: RunSort = isRunSort(sortParam) ? sortParam : DEFAULT_SORT;
+
+  function handleStatusChange(status: RunStatusFilter) {
+    setSearchParams(
+      (params) => {
+        if (status === "all") params.delete("status");
+        else params.set("status", status);
+        return params;
+      },
+      { replace: true },
+    );
+  }
+
+  function handleQueryChange(value: string) {
+    setSearchParams(
+      (params) => {
+        if (value === "") params.delete("q");
+        else params.set("q", value);
+        return params;
+      },
+      { replace: true },
+    );
+  }
+  function handleSortChange(value: RunSort) {
+    setSearchParams(
+      (params) => {
+        if (value === DEFAULT_SORT) params.delete("sort");
+        else params.set("sort", value);
+        return params;
+      },
+      { replace: true },
+    );
+  }
 
   function resetFilters() {
-    setStatusFilter("all");
-    setQuery("");
+    setSearchParams(
+      (params) => {
+        params.delete("status");
+        params.delete("q");
+        return params;
+      },
+      { replace: true },
+    );
   }
 
   function renderContent() {
@@ -45,7 +94,10 @@ export function RunsPage() {
       );
     }
 
-    const visibleRuns = filterRuns(state.runs, statusFilter, query);
+    const visibleRuns = sortRuns(
+      filterRuns(state.runs, statusFilter, query),
+      sort,
+    );
 
     if (visibleRuns.length === 0) {
       return (
@@ -63,9 +115,12 @@ export function RunsPage() {
 
     return (
       <>
-        <p className={styles.count}>
-          Showing {visibleRuns.length} of {state.runs.length} runs
-        </p>
+        <div className={styles.listHeader}>
+          <p className={styles.count}>
+            Showing {visibleRuns.length} of {state.runs.length} runs
+          </p>
+          <SortSelect value={sort} onChange={handleSortChange} />
+        </div>
         <RunList runs={visibleRuns} />
       </>
     );
@@ -80,8 +135,8 @@ export function RunsPage() {
       </header>
 
       <div className={styles.toolbar}>
-        <SearchInput value={query} onChange={setQuery} />
-        <StatusFilter value={statusFilter} onChange={setStatusFilter} />
+        <SearchInput value={query} onChange={handleQueryChange} />
+        <StatusFilter value={statusFilter} onChange={handleStatusChange} />
       </div>
 
       {renderContent()}
