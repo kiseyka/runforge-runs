@@ -15,7 +15,7 @@ export async function fetchRuns(): Promise<Run[]> {
   await delay(DELAY_MS);
 
   if (shouldFail()) {
-    throw new Error("Не удалось загрузить запуски");
+    throw new Error("Failed to load runs");
   }
 
   return mockRuns;
@@ -26,7 +26,7 @@ export async function fetchRunById(id: string): Promise<Run> {
 
   const run = mockRuns.find((r) => r.id === id);
   if (!run) {
-    throw new Error("Запуск не найден");
+    throw new Error("Run not found");
   }
 
   return run;

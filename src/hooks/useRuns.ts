@@ -23,7 +23,7 @@ export function useRuns() {
       } catch (error) {
         if (!ignore) {
           const message =
-            error instanceof Error ? error.message : "Неизвестная ошибка";
+            error instanceof Error ? error.message : "Unknown error";
           setState({ status: "error", error: message });
         }
       }
