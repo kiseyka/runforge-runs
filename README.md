@@ -1,75 +1,126 @@
-# React + TypeScript + Vite
+# Runforge — Runs
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Страница **Runs** для Runforge: список запусков AI-агентов с поиском, фильтром по статусу, сортировкой и страницей деталей запуска. Данные приходят из локального mock-сервиса с задержкой, имитирующего backend.
 
-Currently, two official plugins are available:
+**Демо:** https://runforge-runs-kiseyka.vercel.app/
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Стек
 
-## React Compiler
+React 19 · TypeScript · Vite · React Router · CSS Modules · Vitest + React Testing Library
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Запуск
 
-## Expanding the ESLint configuration
+**Требования:** Node.js 20.19+ или 22.12+ (требование Vite), npm.
+Проверить версию: `node -v`.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+1. Клонировать репозиторий и перейти в папку проекта:
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+   ```bash
+   git clone https://github.com/kiseyka/runforge-runs.git
+   cd runforge-runs
+   ```
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+2. Установить зависимости:
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+   ```bash
+   npm install
+   ```
+
+3. Запустить dev-сервер:
+
+   ```bash
+   npm run dev
+   ```
+
+   Приложение откроется на http://localhost:5173
+
+4. Запустить тесты:
+
+   ```bash
+   npm test
+   ```
+
+### Все команды
+
+| Команда | Что делает |
+|---|---|
+| `npm run dev` | dev-сервер с hot reload |
+| `npm test` | однократный прогон тестов |
+| `npm run test:watch` | тесты в режиме наблюдения |
+| `npm run lint` | проверка ESLint |
+| `npm run build` | проверка типов (`tsc`) и production-сборка в `dist/` |
+| `npm run preview` | локальный просмотр production-сборки (после `build`) |
+
+## Как проверить состояния
+
+| Состояние | Как увидеть |
+|---|---|
+| Загрузка | открыть страницу — mock отвечает с задержкой 800 мс (skeleton) |
+| Ошибка + «Retry» | добавить `?error` к адресу: `/?error` или `/runs/run-001?error` |
+| Пустой результат | ввести в поиск `zzz` → «No runs found» и «Reset filters» |
+| Запуск не найден | открыть `/runs/unknown` |
+| Страница не найдена | открыть любой несуществующий адрес, например `/whatever` |
+
+## Что реализовано
+
+- Список запусков: название, репозиторий, ветка, статус, дата создания, длительность (если известна)
+- Фильтр по статусу (All / Queued / Running / Succeeded / Failed) — активный фильтр выделен и отмечен `aria-pressed`
+- Поиск по названию или репозиторию; поиск и фильтр работают вместе
+- Детали запуска на отдельной странице `/runs/:runId`: метаданные, логи (строки с ошибкой подсвечены), результат или пояснение, почему его нет
+- Статусы различаются цветом **и** текстовой подписью
+- Адаптивная вёрстка от 360 px: карточки на мобильных, строки на десктопе
+- Навигация с клавиатуры: видимый фокус, карточка открывается по Enter
+
+**Бонусы:**
+- **Сортировка** по дате (новые / старые) и длительности; запуски без длительности всегда в конце
+- **URL-фильтры**: статус, поиск и сортировка хранятся в адресе (`/?status=failed&q=api&sort=oldest`), сохраняются при переходе на детали и обратно и при обновлении страницы
+- **Деплой** на Vercel
+- Дополнительные тесты: пустой результат и сброс, ошибка и повтор, несуществующий запуск, сортировка
+
+## Структура проекта
 
 ```
-
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+src/
+├── api/runsApi.ts        # mock-сервис: fetchRuns, fetchRunById (задержка, режим ошибки)
+├── mocks/runs.ts         # 7 запусков, все 4 статуса
+├── types/run.ts          # Run, RunStatus, RunStatusFilter, RunSort
+├── constants/            # подписи статусов, варианты сортировки, валидация параметров URL
+├── hooks/                # useRuns, useRun — загрузка и состояния loading / error / success
+├── utils/                # filterRuns, sortRuns, форматирование даты и длительности
+├── components/           # UI-компоненты (StatusBadge, RunCard, RunList, StatusFilter, SearchInput,
+│                         #   SortSelect, LogViewer, RunDetails, StateMessage, RunsSkeleton, Button, …)
+├── pages/                # RunsPage, RunDetailsPage, NotFoundPage
+├── test/setup.ts         # настройка Vitest и jest-dom
+├── App.tsx               # маршруты
+└── index.css             # CSS-переменные темы (цвета, отступы, шрифты)
 ```
+
+Компоненты получают данные только через хуки → API-слой. Чтобы подключить настоящий backend, достаточно заменить тело функций в `api/runsApi.ts` на `fetch`, остальной код не меняется.
+
+## Тесты
+
+`src/App.test.tsx` — сценарии на уровне всего приложения (API замокан через `vi.mock`, роутер — `MemoryRouter`):
+
+1. Фильтрация по статусу
+2. Поиск
+3. Поиск + фильтр вместе, пустой результат и сброс фильтров
+4. Открытие деталей и возврат к списку
+5. Ошибка загрузки и повтор
+6. Несуществующий запуск
+
+`src/utils/sortRuns.test.ts` — порядок сортировки по длительности и отсутствие мутации исходного массива.
+
+Проверено, что тесты ловят регрессию: при замене `&&` на `||` в `filterRuns` падают 3 сценарных теста.
+
+## Что бы улучшила при большем времени
+
+- Объединить `useRuns` и `useRun` в общий хук `useAsyncData<T>` — сейчас они дублируют логику загрузки
+- Прокручивать полосу фильтров на мобильном к активной кнопке, если она за краем экрана (например, при открытии `/?status=failed`)
+- Добавить ссылку «Clear filters» рядом со счётчиком, когда активен любой фильтр, а не только в пустом состоянии
+- Для запусков в статусе `running` — периодически обновлять данные (polling), чтобы видеть новые логи без перезагрузки
+- Добавить debounce для поиска при подключении настоящего API, чтобы не отправлять запрос на каждый символ
+
+## Примечания
+
+- TypeScript зафиксирован на `~6.0.0`: актуальный шаблон Vite ставит TypeScript 7, который пока не поддерживается `typescript-eslint` (установка падала с `ERESOLVE`).
+- `vercel.json` перенаправляет все адреса на `index.html`, чтобы прямые ссылки на `/runs/:id` работали в SPA.
