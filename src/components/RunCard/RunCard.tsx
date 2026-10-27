@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import type { Run } from "../../types/run";
 import { formatDate, formatDuration } from "../../utils/format";
 import { StatusBadge } from "../StatusBadge/StatusBadge";
@@ -9,11 +9,17 @@ type RunCardProps = {
 };
 
 export function RunCard({ run }: RunCardProps) {
+  const location = useLocation();
+
   return (
     <article className={styles.card}>
       <div className={styles.info}>
         <h3 className={styles.name}>
-          <Link to={`/runs/${run.id}`} className={styles.link}>
+          <Link
+            to={`/runs/${run.id}`}
+            state={{ listSearch: location.search }}
+            className={styles.link}
+          >
             {run.name}
           </Link>
         </h3>

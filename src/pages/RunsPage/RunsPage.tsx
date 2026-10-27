@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { isRunStatus } from "../../constants/runStatus";
 import { Button } from "../../components/Button/Button";
 import { RunList } from "../../components/RunList/RunList";
 import { RunsSkeleton } from "../../components/RunsSkeleton/RunsSkeleton";
@@ -12,12 +13,45 @@ import styles from "./RunsPage.module.css";
 
 export function RunsPage() {
   const { state, retry } = useRuns();
-  const [statusFilter, setStatusFilter] = useState<RunStatusFilter>("all");
-  const [query, setQuery] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const statusParam = searchParams.get("status");
+  const statusFilter: RunStatusFilter = isRunStatus(statusParam)
+    ? statusParam
+    : "all";
+  const query = searchParams.get("q") ?? "";
+
+  function handleStatusChange(status: RunStatusFilter) {
+    setSearchParams(
+      (params) => {
+        if (status === "all") params.delete("status");
+        else params.set("status", status);
+        return params;
+      },
+      { replace: true },
+    );
+  }
+
+  function handleQueryChange(value: string) {
+    setSearchParams(
+      (params) => {
+        if (value === "") params.delete("q");
+        else params.set("q", value);
+        return params;
+      },
+      { replace: true },
+    );
+  }
 
   function resetFilters() {
-    setStatusFilter("all");
-    setQuery("");
+    setSearchParams(
+      (params) => {
+        params.delete("status");
+        params.delete("q");
+        return params;
+      },
+      { replace: true },
+    );
   }
 
   function renderContent() {
@@ -80,8 +114,8 @@ export function RunsPage() {
       </header>
 
       <div className={styles.toolbar}>
-        <SearchInput value={query} onChange={setQuery} />
-        <StatusFilter value={statusFilter} onChange={setStatusFilter} />
+        <SearchInput value={query} onChange={handleQueryChange} />
+        <StatusFilter value={statusFilter} onChange={handleStatusChange} />
       </div>
 
       {renderContent()}
