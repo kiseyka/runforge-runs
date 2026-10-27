@@ -1,0 +1,36 @@
+.logs {
+  margin: 0;
+  padding: var(--space-4);
+  list-style: none;
+  background: var(--color-log-bg);
+  color: var(--color-log-text);
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.line {
+  display: grid;
+  grid-template-columns: 2em minmax(0, 1fr);
+  gap: var(--space-3);
+}
+
+.lineNumber {
+  color: var(--color-log-muted);
+  text-align: right;
+  user-select: none;
+}
+
+.text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.error .text {
+  color: var(--color-log-error);
+}
+
+.empty {
+  color: var(--color-text-muted);
+}

@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import type { Run } from "../../types/run";
 import { formatDate, formatDuration } from "../../utils/format";
 import { StatusBadge } from "../StatusBadge/StatusBadge";
@@ -11,7 +12,11 @@ export function RunCard({ run }: RunCardProps) {
   return (
     <article className={styles.card}>
       <div className={styles.info}>
-        <h3 className={styles.name}>{run.name}</h3>
+        <h3 className={styles.name}>
+          <Link to={`/runs/${run.id}`} className={styles.link}>
+            {run.name}
+          </Link>
+        </h3>
         <p className={styles.meta}>
           <span>{run.repository}</span>
           <span aria-hidden="true">·</span>
