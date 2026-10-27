@@ -1,18 +1,21 @@
+import { Layout } from "./components/Layout/Layout";
 import { useRuns } from "./hooks/useRuns";
 
 function App() {
   const { state, retry } = useRuns();
 
-  if (state.status === "loading") return <p>Загрузка...</p>;
-  if (state.status === "error") {
-    return (
-      <div>
-        <p>{state.error}</p>
-        <button onClick={retry}>Повторить</button>
-      </div>
-    );
-  }
-  return <p>Загружено запусков: {state.runs.length}</p>;
+  return (
+    <Layout>
+      {state.status === "loading" && <p>Loading...</p>}
+      {state.status === "error" && (
+        <div>
+          <p>{state.error}</p>
+          <button onClick={retry}>Retry</button>
+        </div>
+      )}
+      {state.status === "success" && <p>Runs loaded: {state.runs.length}</p>}
+    </Layout>
+  );
 }
 
 export default App;
